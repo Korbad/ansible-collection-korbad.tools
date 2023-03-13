@@ -1,0 +1,5 @@
+---
+boot_partition_number: 1
+primary_partition_number: 2
+home_partition_number: 3
+device: "/dev/sd{{ device_label | mandatory }}"

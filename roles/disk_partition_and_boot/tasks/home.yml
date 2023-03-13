@@ -1,0 +1,22 @@
+---
+- name: Create home partition
+  community.general.parted:
+    device: "{{ device }}"
+    number: "{{ home_partition_number }}"
+    state: present
+    part_start: 30GiB
+    part_end: "100%"
+    fs_type: ext4
+  register: home_part
+
+- name: Format home partition
+  community.general.filesystem:
+    dev: "{{ device }}"
+    fstype: ext4
+
+- name: Mount home partition
+  mount:
+    path: /home
+    state: mounted
+    fstype: ext4
+    src: "{{ device }}{{ home_partition_number }}"

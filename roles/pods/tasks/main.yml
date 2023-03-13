@@ -1,0 +1,28 @@
+---
+- name: Info
+  containers.podman.podman_container_info:
+  register: container_info
+
+- debug:
+    var: container_info
+
+- name: Gather info for all images
+  containers.podman.podman_image_info:
+  register: image_info
+
+- debug:
+    var: image_info
+
+- name: Gather info about all present networks
+  containers.podman.podman_network_info:
+  register: network_info
+
+- debug:
+    var: network_info
+
+- name: Gather info about all present volumes
+  containers.podman.podman_volume_info:
+  register: volume_info
+
+- debug:
+    var: volume_info
