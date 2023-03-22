@@ -1,0 +1,73 @@
+- name: Gather disk facts
+  setup:
+    filter: "ansible_devices.values() | selectattr('type', 'equalto', 'disk') | list"
+
+- name: Categorize devices by type and removable status
+  set_fact:
+    removable_devices: "{{ removable_devices | default([]) + [device] }}"
+  when: device.removable | default(false)
+  loop: "{{ ansible_devices }}"
+
+- name: Categorize non-removable HDD devices
+  set_fact:
+    hdd_devices: "{{ hdd_devices | default([]) + [device] }}"
+  when: device.type == 'disk' and device.removable | default(false) and device.rotational | default(true)
+  loop: "{{ ansible_devices }}"
+
+- name: Categorize non-removable SSD devices
+  set_fact:
+    ssd_devices: "{{ ssd_devices | default([]) + [device] }}"
+  when: device.type == 'disk' and device.removable | default(false) and not device.rotational | default(false)
+  loop: "{{ ansible_devices }}"
+
+- name: Categorize non-removable NVMe devices
+  set_fact:
+    nvme_devices: "{{ nvme_devices | default([]) + [device] }}"
+  when: device.type == 'disk' and device.removable | default(false) and 'nvme' in device.name
+  loop: "{{ ansible_devices }}"
+
+- name: Display removable device facts
+  debug:
+    msg: |
+      Removable Devices:
+      {% for device in removable_devices %}
+      Device {{ device.name }}:
+          Model: {{ device.model | default('N/A') }}
+          Size: {{ device.size | default('N/A') }} bytes
+          Interface: {{ device.interface | default('N/A') }}
+          Vendor: {{ device.vendor | default('N/A') }}
+      {% endfor %}
+
+- name: Display non-removable HDD device facts
+  debug:
+    msg: |
+      Non-Removable HDD Devices:
+      {% for device in hdd_devices %}
+      Device {{ device.name }}:
+          Model: {{ device.model | default('N/A') }}
+          Size: {{ device.size | default('N/A') }} bytes
+          Interface: {{ device.interface | default('N/A') }}
+          Vendor: {{ device.vendor | default('N/A') }}
+      {% endfor %}
+
+- name: Display non-removable SSD device facts
+  debug:
+    msg: |
+      Non-Removable SSD Devices:
+      {% for device in ssd_devices %}
+      Device {{ device.name }}:
+          Model: {{ device.model | default('N/A') }}
+          Size: {{ device.size | default('N/A') }} bytes
+          Interface: {{ device.interface | default('N/A') }}
+          Vendor: {{ device.vendor | default('N/A') }}
+      {% endfor %}
+  when: ssd_devices is defined
+
+- name: Display non-removable NVMe device facts
+  debug:
+    msg: |
+      Non-Removable NVMe Devices:
+      {% for device in nvme_devices %}
+      Device {{ device.name }}:
+          Model: {{ device.model | default('N/A') }}
+          Size: {{ device.size | default('N/A') }}
