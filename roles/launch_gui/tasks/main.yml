@@ -1,4 +1,11 @@
 ---
-- name: Launch web GUI using surf {{ ansible_host }}:{{ http_port }}
-  shell: nohup surf {{ ansible_host }}:{{ http_port }} &
+- name: Launch web GUI on {{ ansible_host }}:{{ http_port }}
+  shell: setsid {{ web_browser_cli }} {{ ansible_host }}:{{ http_port }} &
   when: ansible_distribution == 'Archlinux'
+  environment:
+    DISPLAY: "{{ ansible_env.DISPLAY | default(':0', true) }}"
+
+- name: Launch web GUI using xdg-open
+  command:
+    cmd: xdg-open http://{{ ansible_host }}:{{ http_port }}
+  when: ansible_distribution == 'AlmaLinux'
