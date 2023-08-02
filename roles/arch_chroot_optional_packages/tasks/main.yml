@@ -1,0 +1,4 @@
+- name: Ensure essential packages are installed
+  command:
+    cmd: pacstrap -K {{ arch_chroot_mount_path }} git ansible
+  become: true

@@ -1,0 +1,8 @@
+---
+- name: Install grub and efibootmgr
+  command:
+    cmd: pacstrap -K {{ arch_chroot_mount_path }} grub efibootmgr
+  become: true
+
+- name: Process partition and mounts
+  include_tasks: configure_efi.yml

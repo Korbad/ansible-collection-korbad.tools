@@ -1,0 +1,15 @@
+---
+- name: Install base and base-devel on mounted root
+  command:
+    cmd: pacstrap -K {{ arch_chroot_mount_path }} base base-devel
+  become: true
+
+- name: Ensure linux kernel and firmware packages are installed
+  command:
+    cmd: pacstrap -K {{ arch_chroot_mount_path }} linux linux-firmware
+  become: true
+
+- name: Ensure sudo and python are installed (for management via ansible)
+  command:
+    cmd: pacstrap -K {{ arch_chroot_mount_path }} sudo python
+  become: true

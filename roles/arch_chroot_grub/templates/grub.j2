@@ -1,0 +1,12 @@
+# /etc/default/grub
+GRUB_DEFAULT={{ grub_default }}
+GRUB_TIMEOUT={{ grub_timeout }}
+GRUB_DISTRIBUTOR="{{ grub_distributor }}"
+GRUB_CMDLINE_LINUX_DEFAULT="{{ grub_cmdline_linux_default }}"
+GRUB_CMDLINE_LINUX="{{ grub_cmdline_linux }}"
+
+{% if grub_disable_os_prober %}
+GRUB_DISABLE_OS_PROBER=true
+{% else %}
+GRUB_DISABLE_OS_PROBER=false
+{% endif %}

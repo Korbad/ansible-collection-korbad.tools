@@ -1,0 +1,5 @@
+---
+- name: Ensure the pacman mirrors are ordered using reflector
+  command:
+    cmd: reflector -c "US" -f 12 -l 10 -n 12 --save {{ arch_chroot_mount_path }}/etc/pacman.d/mirrorlist
+  become: true

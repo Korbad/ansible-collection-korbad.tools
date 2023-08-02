@@ -1,0 +1,5 @@
+---
+- name: Generate filesystem table (fstab) for arch chroot
+  command:
+    cmd: genfstab -U {{ arch_chroot_mount_path }} >> {{ arch_chroot_mount_path }}/etc/fstab
+  become: true
