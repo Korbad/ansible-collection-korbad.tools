@@ -1,0 +1,24 @@
+---
+- name: Create EFI partition
+  community.general.parted:
+    device: "{{ arch_disk_device_path_by_id }}"
+    number: "{{ boot_partition_number }}"
+    flags: ["boot", "esp"]
+    state: present
+    part_start: 0%
+    part_end: 1GiB
+    name: EFI System
+    label: gpt
+  become: true
+
+- name: Inform the OS of partition table changes
+  command: partprobe {{ arch_disk_device_path_by_id }}
+  become: true
+
+- name: Format EFI partition
+  filesystem:
+    fstype: vfat
+    dev: "{{ arch_disk_device_path_by_id }}-part{{ boot_partition_number }}"
+    opts: -F 32
+    force: true
+  become: true

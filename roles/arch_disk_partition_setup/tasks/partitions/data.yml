@@ -1,0 +1,23 @@
+---
+- name: Create data partition
+  community.general.parted:
+    device: "{{ arch_disk_device_path_by_id }}"
+    number: "{{ data_partition_number }}"
+    state: present
+    part_start: 40GiB
+    part_end: "100%"
+    fs_type: ext4
+    label: gpt
+    name: swap
+  become: true
+  register: data_part
+
+- name: Inform the OS of partition table changes
+  command: partprobe {{ arch_disk_device_path_by_id }}
+  become: true
+
+- name: Format data partition
+  community.general.filesystem:
+    dev: "{{ arch_disk_device_path_by_id }}-part{{ data_partition_number }}"
+    fstype: ext4
+  become: true

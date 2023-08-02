@@ -1,0 +1,25 @@
+---
+- name: Create root partition
+  community.general.parted:
+    device: "{{ arch_disk_device_path_by_id }}"
+    number: "{{ root_partition_number }}"
+    state: present
+    part_start: 1GiB
+    part_end: 30GiB
+    fs_type: ext4
+    name: root
+    label: gpt
+  become: true
+  register: root_part
+
+- name: Inform the OS of partition table changes
+  command: partprobe {{ arch_disk_device_path_by_id }}
+  become: true
+
+- name: Format root partition
+  community.general.filesystem:
+    dev: "{{ arch_disk_device_path_by_id }}-part{{ root_partition_number }}"
+    fstype: ext4
+  become: true
+
+

@@ -1,0 +1,15 @@
+- name: Execute tasks to set up partition
+  include_tasks: "partitions/{{ tasks_to_update_partition }}"
+  loop:
+    - boot.yml
+    - root.yml
+    - swap.yml
+    - data.yml
+  loop_control:
+    loop_var: tasks_to_update_partition
+
+- name: Ensure the disk mounts are unmounted
+  include_role:
+    name: unmount_disk_partitions
+  vars:
+    disk_id_to_unmount: "{{ arch_disk_by_id }}"
