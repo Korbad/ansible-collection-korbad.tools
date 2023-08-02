@@ -1,0 +1,9 @@
+---
+- name: Gather facts
+  setup:
+    filter: ansible_devices,ansible_mounts
+
+- name: Create device dictionary
+  set_fact:
+    device_dict: "{{ lookup('template', 'device_dict.j2') | from_yaml }}"
+
