@@ -1,0 +1,17 @@
+---
+- name: Ensure disk is entirely unmounted
+  include_role:
+    name: unmount_disk_partitions
+  vars:
+    disk_id_to_unmount: "{{ disk_id_to_zero_out }}"
+
+- name: Zero out the entire drive {{ disk_id_to_zero_out }}
+  command: dd if=/dev/zero of="{{ arch_disk_device_path }}" bs=1M status=progress count=1000
+  vars:
+    arch_disk_device_path: "/dev/disk/by-id/{{ disk_id_to_zero_out }}"
+  become: true
+
+- name: Flush filesystem buffers
+  ansible.builtin.command:
+    cmd: sync
+  become: true
