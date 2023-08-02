@@ -1,0 +1,9 @@
+---
+- name: Generate device_dict fact
+  include_role:
+    name: device_dict
+
+- name: Process partition and mounts
+  include_tasks: process_partition_and_mounts.yml
+  vars:
+    mounts: "{{ device_dict[disk_by_id].partitions[partition_number|string].mounts }}"
