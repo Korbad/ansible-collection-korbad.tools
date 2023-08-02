@@ -1,0 +1,45 @@
+- name: Check if user exists
+  shell: "arch-chroot {{ arch_chroot_mount_path }} id -u {{ github_username }}"
+  failed_when: false
+  register: user_check
+  become: true
+
+- name: Add a new user
+  command:
+    cmd: arch-chroot {{ arch_chroot_mount_path }} useradd -m -G wheel -s /bin/bash {{ github_username }}
+  become: true
+  when: user_check.rc != 0
+
+- name: Set user password
+  command:
+    cmd: echo "{{ github_username }}:{{ arch_chroot_user_password }}" | arch-chroot {{ arch_chroot_mount_path }} chpasswd
+  become: true
+
+- name: Create .ssh directory for user
+  ansible.builtin.file:
+    path: "{{ arch_chroot_mount_path }}/home/{{ github_username }}/.ssh"
+    state: directory
+    mode: '0700'
+  become: true
+
+- name: Add public key to authorized_keys
+  ansible.posix.authorized_key:
+    key: "https://github.com/{{ github_username }}.keys"
+    manage_dir: false
+    path: "{{ arch_chroot_mount_path }}/home/{{ github_username }}/.ssh/authorized_keys"
+    user: "{{ github_username }}"
+  become: true
+
+- name: Manage /etc/sudoers.d directory
+  file:
+    path: "{{ arch_chroot_mount_path }}/etc/sudoers.d"
+    state: directory
+
+- name: Manage sudoers file
+  community.general.sudoers:
+    name: "{{ github_username }}"
+    user: "{{ github_username }}"
+    commands: ALL
+    state: present
+    sudoers_path: "{{ arch_chroot_mount_path }}/etc/sudoers.d"
+  become: true
