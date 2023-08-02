@@ -1,0 +1,20 @@
+- include_role:
+    name: device_dict
+
+- name: Ensure filesystem write buffering is complete
+  command:
+    cmd: sync
+  become: true
+
+- name: "Unmount disk mount point {{ disk_mount_point }}"
+  include_tasks: unmount_disk_mount_point.yml
+  loop: '{{ mount_points_for_disk_to_unmount }}'
+  loop_control:
+    loop_var: disk_mount_point
+  vars:
+    mount_points_for_disk_to_unmount: "{{ device_dict[disk_id_to_unmount].partitions.values() | map(attribute='mounts') | list | flatten }}"
+
+- name: Sync filesystems before unmounting
+  command:
+    cmd: sync
+  become: true
