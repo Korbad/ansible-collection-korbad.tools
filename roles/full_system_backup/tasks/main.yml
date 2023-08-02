@@ -1,0 +1,51 @@
+---
+- name: Create a temporary directory for the root partition mount point
+  ansible.builtin.tempfile:
+    state: directory
+  register: arch_ssd_root_mount_point
+
+- name: Mount the root partition
+  ansible.builtin.mount:
+    path: "{{ arch_ssd_root_mount_point.path }}"
+    src: "{{ arch_disk_device_path_by_id }}-part{{ partition_to_backup_to_num }}"
+    fstype: auto
+    state: ephemeral
+  become: true
+  vars:
+    arch_disk_device_path_by_id: "/dev/disk/by-id/{{ disk_to_backup_to_by_id }}"
+    partition_to_backup_to_num: 2
+
+- debug:
+    var: arch_ssd_root_mount_point.path
+#- name: Install base and base-devel on mounted root
+#  command:
+#    cmd: pacstrap -K {{ arch_ssd_root_mount_point.path }} base base-devel
+#  become: true
+
+# https://wiki.archlinux.org/title/Rsync#Full_system_backup
+- name: Perform a full system backup using rsync https://wiki.archlinux.org/title/Rsync#Full_system_backup
+  command:
+    argv:
+      - rsync
+      - -aAXHv
+      - --one-file-system
+      - --exclude="/dev/*"
+      - --exclude="/proc/*"
+      - --exclude="/sys/*"
+      - --exclude="/tmp/*"
+      - --exclude="/run/*"
+      - --exclude="/mnt/*"
+      - --exclude="/media/*"
+      - --exclude="/lost+found"
+      - --exclude="/home/*"
+      - --numeric-ids
+      - /
+      - "{{ arch_ssd_root_mount_point.path }}"
+  become: true
+# TODO: If you plan on backing up your system somewhere other than /mnt or /media, do not forget to add it to the list of exclude patterns to avoid an infinite loop.
+
+# TODO: If there are any bind mounts in the system, they should be excluded as well so that the bind mounted contents is copied only once.
+
+# TODO: If you use a swap file, make sure to exclude it as well.
+#If GVFS is installed, /home/*/.gvfs must be excluded to prevent rsync errors.
+#If Dhcpcd ≥ 9.0.0 is installed, exclude the /var/lib/dhcpcd/* directory as it mounts several system directories as sub-directories there.
