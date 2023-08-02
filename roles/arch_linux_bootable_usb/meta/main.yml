@@ -1,0 +1,5 @@
+---
+dependencies:
+  - role: korbad.workstation.dosfstools
+  - role: korbad.artifacts.arch_iso
+

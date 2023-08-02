@@ -1,0 +1,29 @@
+- name: Create a temporary directory
+  ansible.builtin.tempfile:
+    state: directory
+  register: arch_part1_mount_point
+
+- name: Mount the boot partition
+  ansible.builtin.mount:
+    path: "{{ arch_part1_mount_point.path }}"
+    src: "{{ usb_device }}-part1"
+    fstype: auto
+    state: ephemeral
+  become: true
+
+- name: Extract the ISO image to the mounted file system
+  ansible.builtin.command:
+    argv:
+      - bsdtar
+      - -x
+      - -f
+      - "{{ arch_iso_path }}"
+      - -C
+      - "{{ arch_part1_mount_point.path }}"
+
+- name: Unmount the file system
+  ansible.builtin.mount:
+    path: "{{ arch_part1_mount_point.path }}"
+    state: absent
+  become: true
+

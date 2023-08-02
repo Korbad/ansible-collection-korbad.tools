@@ -1,0 +1,87 @@
+- name: Ensure the disk mounts are unmounted
+  include_role:
+    name: unmount_disk_partitions
+  vars:
+    disk_id_to_unmount: "{{ disk_id }}"
+
+- name: Destroy the partition table on the disk
+  include_role:
+    name: zero_out_disk
+  vars:
+    disk_id_to_zero_out: "{{ disk_id }}"
+
+- name: Flush filesystem buffers
+  ansible.builtin.command:
+    cmd: sync
+  become: true
+
+- name: Create the boot/install partition
+  community.general.parted:
+    device: "{{ usb_device }}"
+    number: 1
+    state: present
+    part_start: 0%
+    part_end: 1GiB
+    label: gpt
+    flags: [ boot ]
+    name: EFI System
+  become: true
+
+- name: Create the files partition
+  community.general.parted:
+    device: "{{ usb_device }}"
+    number: 2
+    state: present
+    part_start: 1GiB
+    part_end: 100%
+    label: gpt
+  become: true
+
+- name: Format the boot/install partition to FAT32
+  community.general.filesystem:
+    fstype: vfat
+    dev: "{{ usb_device }}-part1"
+    opts: -F 32
+    force: true
+  become: true
+
+- name: Format the files partition to ext4
+  community.general.filesystem:
+    fstype: ext4
+    dev: "{{ usb_device }}-part2"
+  become: true
+
+- name: Create a temporary directory for the boot/install partition mount point
+  ansible.builtin.tempfile:
+    state: directory
+  register: arch_part1_mount_point
+
+- name: Mount the boot/install partition
+  ansible.builtin.mount:
+    path: "{{ arch_part1_mount_point.path }}"
+    src: "{{ usb_device }}-part1"
+    fstype: auto
+    state: ephemeral
+  become: true
+
+- name: Extract the ISO image to the mounted file system
+  ansible.builtin.command:
+    argv:
+      - bsdtar
+      - -x
+      - -f
+      - "{{ arch_iso_path }}"
+      - -C
+      - "{{ arch_part1_mount_point.path }}"
+  become: true
+
+- name: Flush filesystem buffers
+  ansible.builtin.command:
+    cmd: sync
+  become: true
+
+- name: Ensure the disk mounts are unmounted
+  include_role:
+    name: unmount_disk_partitions
+  vars:
+    disk_id_to_unmount: "{{ disk_id }}"

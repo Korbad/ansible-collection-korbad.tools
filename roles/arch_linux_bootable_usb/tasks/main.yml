@@ -1,0 +1,4 @@
+- name: Ensure usb is set up for Arch installation (live) disk setup
+  include_tasks: partitions_and_filesystems.yml
+  vars:
+    usb_device: "/dev/disk/by-id/{{ disk_id }}"
