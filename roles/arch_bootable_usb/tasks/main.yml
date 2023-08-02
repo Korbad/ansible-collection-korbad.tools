@@ -1,0 +1,39 @@
+---
+- name: Ensure arch iso exists
+  stat:
+    path: "{{ arch_iso_path }}"
+  register: arch_iso
+
+- name: Assert that arch iso exists
+  assert:
+    that:
+      - arch_iso.stat.exists
+    fail_msg: "The Arch ISO file does not exist at the specified path."
+
+- name: Create temporary directory for mount
+  ansible.builtin.tempfile:
+    state: directory
+  register: tempdir
+
+- name: Mount the USB partition
+  ansible.builtin.mount:
+    path: "{{ tempdir.path }}"
+    src: "{{ arch_usb_device_partition_path }}"
+    fstype: vfat
+    state: mounted
+
+- name: Extract the ISO image to the USB partition
+  ansible.builtin.unarchive:
+    src: "{{ arch_iso_path }}"
+    dest: "{{ tempdir.path }}"
+    remote_src: yes
+
+- name: Unmount the USB partition
+  ansible.builtin.mount:
+    path: "{{ tempdir.path }}"
+    state: unmounted
+
+- name: Remove temporary directory
+  ansible.builtin.file:
+    path: "{{ tempdir.path }}"
+    state: absent
