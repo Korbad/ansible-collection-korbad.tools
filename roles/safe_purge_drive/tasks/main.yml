@@ -1,3 +1,11 @@
 ---
-- debug:
-    msg: "{{ ansible_facts['devices'] }}"
+- name: Create a temporary directory
+  tempfile:
+    state: directory
+  register: temp_dir
+
+- name: Mount the partition at the temp dir and safely purge it
+  include_tasks: mount_and_purge.yml
+  vars:
+    mounted_safe_purge_partition_path: "{{ temp_dir.path }}"
+...

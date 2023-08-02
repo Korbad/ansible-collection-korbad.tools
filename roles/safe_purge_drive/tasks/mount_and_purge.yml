@@ -1,0 +1,31 @@
+
+- name: Mount the disk partition
+  mount:
+    path: "{{ mounted_safe_purge_partition_path }}"
+    src: "/dev/disk/by-id/{{ disk_parition_by_id }}"
+    fstype: auto
+    state: mounted
+  become: true
+
+- name: Find empty directories
+  find:
+    paths: "{{ (mounted_safe_purge_partition_path, safe_purge_path) | path_join }}"
+    file_type: directory
+    patterns: '.*'
+    recurse: yes
+    use_regex: yes
+    age: '1d'
+    age_stamp: mtime
+    contains: '^$'
+  register: empty_dirs
+- debug:
+    var: empty_dirs
+- name: Delete empty directories
+  file:
+    path: "{{ empty_dir_path }}"
+    state:
+  check_mode: true
+  loop: "{{ empty_dirs.files }}"
+  loop_control:
+    loop_var: empty_dir_path
+
