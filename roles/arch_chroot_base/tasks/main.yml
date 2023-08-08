@@ -1,0 +1,5 @@
+---
+- name: Install base and base-devel on mounted root
+  command:
+    cmd: pacstrap -K {{ arch_chroot_mount_path }} base base-devel
+  become: true
