@@ -1,7 +1,12 @@
+- name: Generate device_dict fact
+  include_role:
+    name: device_dict
+
 - name: Create a temporary directory for the partition mount point
   ansible.builtin.tempfile:
     state: directory
   register: temp_mounted_partition_path
+  when: device_dict[disk_by_id].partitions[partition_number | string].mounts | count | int == 0
 
 - name: Mount the partition
   ansible.builtin.mount:
@@ -10,9 +15,12 @@
     fstype: auto
     state: ephemeral
   become: true
+  when: device_dict[disk_by_id].partitions[partition_number | string].mounts | count | int == 0
+  register: mount_partition
   vars:
     disk_device_path_by_id: "/dev/disk/by-id/{{ disk_by_id }}"
 
 - name: Generate device_dict fact
   include_role:
     name: device_dict
+  when: mount_partition is not skipped
