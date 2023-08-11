@@ -1,0 +1,8 @@
+- name: Get machine-id from the chroot's /etc/machine-id
+  slurp:
+    src: "{{ arch_chroot_mount_path }}/etc/machine-id"
+  register: machine_id_result
+
+- name: Set arch_chroot_machine_id fact
+  set_fact:
+    arch_chroot_machine_id: "{{ machine_id_result['content'] | b64decode }}"
