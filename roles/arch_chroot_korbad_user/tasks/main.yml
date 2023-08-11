@@ -11,8 +11,25 @@
   when: user_check.rc != 0
 
 - name: Set user password
-  command:
-    cmd: echo "{{ github_username }}:{{ arch_chroot_user_password }}" | arch-chroot {{ arch_chroot_mount_path }} chpasswd
+  expect:
+    command: arch-chroot {{ arch_chroot_mount_path }} passwd {{ github_username }}
+    responses:
+      "New password": "{{ arch_chroot_user_password }}"
+      "Retype new password": "{{ arch_chroot_user_password }}"
+  become: true
+  vars:
+    ansible_ssh_pipelining: yes
+
+- name: Get UID and GID of korbad inside the chroot
+  shell: arch-chroot {{ arch_chroot_mount_path }} id -u korbad
+  changed_when: false
+  register: korbad_uid
+  become: true
+
+- name: Get GID of korbad inside the chroot
+  shell: arch-chroot {{ arch_chroot_mount_path }} id -g korbad
+  changed_when: false
+  register: korbad_gid
   become: true
 
 - name: Create .ssh directory for user
@@ -20,6 +37,8 @@
     path: "{{ arch_chroot_mount_path }}/home/{{ github_username }}/.ssh"
     state: directory
     mode: '0700'
+    owner: "{{ korbad_uid.stdout }}"
+    group: "{{ korbad_gid.stdout }}"
   become: true
 
 - name: Add public key to authorized_keys
@@ -29,11 +48,25 @@
     path: "{{ arch_chroot_mount_path }}/home/{{ github_username }}/.ssh/authorized_keys"
     user: "{{ github_username }}"
   become: true
+  vars:
+    ansible_ssh_pipelining: yes
+
+- name: Update ownership of authorized_keys
+  ansible.builtin.file:
+    path: "{{ arch_chroot_mount_path }}/home/{{ github_username }}/.ssh/authorized_keys"
+    owner: "{{ korbad_uid.stdout }}"
+    group: "{{ korbad_gid.stdout }}"
+    mode: '0600'
+  become: true
 
 - name: Manage /etc/sudoers.d directory
   file:
     path: "{{ arch_chroot_mount_path }}/etc/sudoers.d"
     state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
 
 - name: Manage sudoers file
   community.general.sudoers:
