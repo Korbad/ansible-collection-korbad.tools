@@ -1,0 +1,6 @@
+---
+- name: Ensure microcode updates are applied (intel and amd both) to chroot at {{ arch_chroot_mount_path }}
+  command:
+    cmd: pacstrap -K {{ arch_chroot_mount_path }} intel-ucode amd-ucode
+  become: true
+

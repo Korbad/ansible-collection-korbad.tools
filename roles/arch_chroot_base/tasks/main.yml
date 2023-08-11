@@ -3,3 +3,8 @@
   command:
     cmd: pacstrap -K {{ arch_chroot_mount_path }} base base-devel
   become: true
+
+- name: Ensure that the linux firmware pacakage is installed
+  command:
+    cmd: pacstrap -K {{ arch_chroot_mount_path }} linux-firmware
+  become: true

@@ -6,4 +6,5 @@
 - name: Process partition and mounts
   include_tasks: process_partition_and_mounts.yml
   vars:
-    mounts: "{{ device_dict[disk_by_id].partitions[partition_number|string].mounts }}"
+    mounts: "{{ device_dict[disk_by_id].partitions[root_partition_number|string].mounts }}"
+

@@ -1,6 +1,8 @@
 - name: Ensure the partition is mounted
   include_role:
     name: mounted_partition
+  vars:
+    partition_number: "{{ root_partition_number }}"
   when: mounts | list | length | int == 0
 
 - name: At this point, there must exist a mount point

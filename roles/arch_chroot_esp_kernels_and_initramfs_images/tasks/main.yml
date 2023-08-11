@@ -1,0 +1,7 @@
+- name: Find kernel and initramfs images in {{ boot_partition_number }}/boot
+  ansible.builtin.find:
+    paths: "{{ arch_chroot_mount_path }}/boot"
+    patterns: 'vmlinuz-*,initramfs-*.img'
+  register: kernel_files
+  become: true
+
