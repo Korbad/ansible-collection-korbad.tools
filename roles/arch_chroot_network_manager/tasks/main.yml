@@ -1,0 +1,10 @@
+---
+- name: Ensure networkmanager package is installed
+  command:
+    cmd: pacstrap -K {{ arch_chroot_mount_path }} networkmanager
+  become: true
+
+- name: Enable NetworkManager service
+  command:
+    cmd: arch-chroot {{ arch_chroot_mount_path }} systemctl enable NetworkManager.service
+  become: true
