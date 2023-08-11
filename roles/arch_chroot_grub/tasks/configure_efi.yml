@@ -1,35 +1,19 @@
-- name: Ensure the /boot/efi directory exists with proper permissions
-  file:
-    path: "{{ arch_chroot_mount_path }}/boot/efi"
-    state: directory
-    mode: '0755'
-  become: true
 
-- name: Generate device_dict fact and refresh ansible facts for devices and mounts
+- name: Ensure that the efi partition is mounted
   include_role:
-    name: device_dict
+    name: arch_chroot_esp_mount
 
-- name: Mount the partition if it is not mounted
-  ansible.builtin.mount:
-    path: "{{ arch_chroot_mount_path }}/boot/efi"
-    src: "{{ disk_device_path_by_id }}-part{{ boot_partition_number }}"
-    fstype: auto
-    state: ephemeral
-  become: true
-  vars:
-    disk_device_path_by_id: "/dev/disk/by-id/{{ disk_by_id }}"
-  register: mount_chroot_efi
-  when: (arch_chroot_mount_path + '/boot/efi') not in ansible_mounts | map(attribute='mount')
+- name: Check if vmlinuz-linux exists
+  stat:
+    path: "{{ arch_chroot_esp_mount_path }}/vmlinuz-linux"
+  register: vmlinuz
 
-- name: Generate device_dict fact
-  include_role:
-    name: device_dict
-  when: mount_chroot_efi is not skipped
 
 - name: Install grub
   command:
-    cmd: arch-chroot {{ arch_chroot_mount_path }} grub-install --target=x86_64-efi --bootloader-id=grub_korbad --efi-directory=/boot/efi
+    cmd: arch-chroot {{ arch_chroot_mount_path }} grub-install --target=x86_64-efi --bootloader-id=grub_korbad --efi-directory=/boot
   become: true
+  notify: regenerate initramfs image
 
 - name: Configure GRUB defaults
   template:
@@ -43,6 +27,7 @@
     grub_cmdline_linux: ''
     grub_disable_os_prober: true
   become: true
+  notify: regenerate initramfs image
 
 - name: Get UUID of the root partition
   command:
@@ -60,8 +45,10 @@
       - name: "korbad - disk {{ disk_by_id }}"
         uuid: "{{ root_uuid.stdout }}"
   become: true
+  notify: regenerate initramfs image
 
 - name: Generate GRUB configuration file
   command:
     cmd: arch-chroot {{ arch_chroot_mount_path }} grub-mkconfig -o /boot/grub/grub.cfg
   become: true
+  notify: regenerate initramfs image
