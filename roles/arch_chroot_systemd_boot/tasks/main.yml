@@ -1,0 +1,17 @@
+---
+# https://wiki.archlinux.org/title/systemd-boot
+- name: Install systemd-boot to ESP
+  command:
+    cmd: "arch-chroot {{ arch_chroot_mount_path }} bootctl install"
+  become: true
+
+- name: Ensure systemd-boot config file is managed
+  template:
+    src: loader.conf.j2
+    dest: "{{ arch_chroot_esp_mount_path }}/loader/loader.conf"
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- include_tasks: custom_boot_entries.yml

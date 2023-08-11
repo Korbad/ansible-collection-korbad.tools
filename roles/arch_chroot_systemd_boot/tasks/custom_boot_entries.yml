@@ -1,0 +1,58 @@
+
+- set_fact:
+    microcode_paths:
+      - /intel-ucode.img
+      - /amd-ucode.img
+    boot_menu_entries:
+      - boot_menu_entry_title: arch
+        boot_menu_config_filename: arch
+        linux_kernel_path: /vmlinuz-linux
+        initramfs_image_path: /initramfs-linux.img
+      - boot_menu_entry_title: arch-zen
+        boot_menu_config_filename: arch-zen
+        linux_kernel_path: /vmlinuz-linux-zen
+        initramfs_image_path: /initramfs-linux-zen.img
+      - boot_menu_entry_title: arch-lts
+        boot_menu_config_filename: arch-lts
+        linux_kernel_path: /vmlinuz-linux-lts
+        initramfs_image_path: /initramfs-linux-lts.img
+
+- name: Fetch UUID of partition
+  command: blkid --match-tag PARTUUID --output value {{ arch_chroot_disk_root_partition_path }}
+  register: arch_chroot_root_partition_blkid_cmd
+  become: true
+  vars:
+    arch_chroot_disk_root_partition_path: "/dev/disk/by-id/{{ disk_by_id }}-part{{ root_partition_number }}"
+
+- name: Print UUID output
+  debug:
+    var: arch_chroot_root_partition_blkid_cmd.stdout
+
+# https://uapi-group.org/specifications/specs/boot_loader_specification/
+- name: Ensure custom boot menu entries exist for chroot ESP at {{ arch_chroot_esp_mount_path }}
+  template:
+    src: custom_loader.conf.j2
+    dest: "{{ arch_chroot_esp_mount_path }}/loader/entries/{{ item.boot_menu_config_filename }}.conf"
+    owner: root
+    group: root
+    mode: '0644'
+  loop: "{{ boot_menu_entries }}"
+  loop_control:
+    label: "{{ item.boot_menu_entry_title }}"
+  become: true
+  vars:
+    root_partition_uuid: "{{ arch_chroot_root_partition_blkid_cmd.stdout }}"
+
+
+- name: Check if microcode files exist
+  stat:
+    path: "{{ arch_chroot_esp_mount_path }}{{ item }}"
+  register: microcode_stat_result
+  loop: "{{ microcode_paths }}"
+  become: true
+
+- name: Fail if a microcode file is missing
+  fail:
+    msg: "The file {{ item.item }} is missing!"
+  when: not item.stat.exists
+  loop: "{{ microcode_stat_result.results }}"
