@@ -1,4 +1,4 @@
-- name: Ensure essential packages are installed
+- name: Ensure sudo and python are installed (for management via ansible)
   command:
-    cmd: pacstrap -K {{ arch_chroot_mount_path }} git ansible
+    cmd: pacstrap -K {{ arch_chroot_mount_path }} sudo python
   become: true
