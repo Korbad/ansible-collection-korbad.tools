@@ -1,0 +1,9 @@
+---
+- name: Add hardened SSH config to {{ arch_chroot_mount_path }}
+  template:
+    dest: "{{ arch_chroot_mount_path }}/etc/ssh/sshd_config"
+    src: sshd_config.j2
+    owner: root
+    group: root
+    mode: 0600
+  become: true
