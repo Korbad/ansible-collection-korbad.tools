@@ -1,0 +1,7 @@
+- name: Ensure filesystem write buffering is complete
+  command:
+    cmd: sync
+  become: true
+
+- include_role:
+    name: device_dict

@@ -1,0 +1,14 @@
+- name: Check for open files using fuser
+  ansible.builtin.command:
+    cmd: fuser --mount --kill {{ disk_mount_point }}
+  become: true
+  failed_when: false
+  register: fuser_open_files
+
+- debug:
+    var: fuser_open_files.stdout_lines
+
+- name: Ensure filesystem write buffering is complete
+  command:
+    cmd: sync
+  become: true
