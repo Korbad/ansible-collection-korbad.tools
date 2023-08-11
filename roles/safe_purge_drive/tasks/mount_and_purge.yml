@@ -1,15 +1,64 @@
+- name: Launch file manager at point position at {{ mounted_safe_purge_partition_path }}
+  shell:
+    cmd: nohup nemo {{ mounted_safe_purge_partition_path }} >/dev/null 2>&1 &
+  environment:
+    DISPLAY: "{{ ansible_env.DISPLAY | default(':0', true) }}"
 
-- name: Mount the disk partition
-  mount:
-    path: "{{ mounted_safe_purge_partition_path }}"
-    src: "/dev/disk/by-id/{{ disk_parition_by_id }}"
-    fstype: auto
-    state: mounted
+- name: Ensure specific root directories are absent in {{ mounted_safe_purge_partition_path }}
+  file:
+    path: "{{ mounted_safe_purge_partition_path }}/{{ item.dir }}"
+    state: absent
+  loop:
+    - { dir: 'bin', reason: 'Symlink to /usr/bin for compatibility.' }
+    - { dir: 'boot', reason: 'Contains the kernel and boot files.' }
+    - { dir: 'dev', reason: 'Contains device files.' }
+    - { dir: 'lib', reason: 'Symlink to /usr/lib for compatibility.' }
+    - { dir: 'lib64', reason: 'Symlink to /usr/lib for compatibility.' }
+    - { dir: 'proc', reason: 'Process information pseudo-filesystem.' }
+    - { dir: 'run', reason: 'Runtime data for processes.' }
+    - { dir: 'sbin', reason: 'Symlink to /usr/bin for compatibility.' }
+    - { dir: 'sys', reason: 'System information pseudo-filesystem.' }
+    - { dir: 'usr', reason: 'User utilities and applications.' }
+    - { dir: 'etc', reason: 'System-wide configuration files and shell scripts.' }
+    - { dir: 'lost+found', reason: 'Recovery area for orphaned or corrupted files.' }
+  loop_control:
+    label: "{{ item.dir }} - {{ item.reason }}"
   become: true
 
+- name: Ensure specific root directories are absent within {{ mounted_safe_purge_partition_path }}
+  file:
+    path: "{{ mounted_safe_purge_partition_path }}/{{ item.dir }}"
+    state: absent
+  loop:
+    - { dir: 'mnt', reason: 'Used for temporarily mounted file systems; potential for user data.' }
+    - { dir: 'opt', reason: 'Holds optional or additional software; moderate potential for user data.' }
+    - { dir: 'root', reason: 'Home directory of the root user; potential for root user data.' }
+    - { dir: 'srv', reason: 'Data for services like HTTP or FTP; potential for user uploaded content.' }
+    - { dir: 'tmp', reason: 'For temporary files; moderate but transient potential for user data.' }
+    - { dir: 'var', reason: 'Holds variable data like logs, databases, mail; high potential for user data.' }
+  loop_control:
+    label: "{{ item.dir }} - {{ item.reason }}"
+  become: true
+
+
+- name: Delete symlinks from {{ mounted_safe_purge_partition_path }}
+  shell:
+    cmd: find {{ mounted_safe_purge_partition_path }} -type l ! -exec test -e {} \; -delete
+  become: true
+  register: delete_symlinks
+
+- debug:
+    var: delete_symlinks
+
+- name: Delete empty directories (executed multiple times) from {{ mounted_safe_purge_partition_path }}
+  shell:
+    cmd: find {{ mounted_safe_purge_partition_path }} -type d -empty -exec rmdir {} \;
+  become: true
+
+- meta: end_play
 - name: Find empty directories
   find:
-    paths: "{{ (mounted_safe_purge_partition_path, safe_purge_path) | path_join }}"
+    paths: "{{ (mounted_safe_purge_partition_path) | path_join }}"
     file_type: directory
     patterns: '.*'
     recurse: yes
@@ -18,8 +67,10 @@
     age_stamp: mtime
     contains: '^$'
   register: empty_dirs
-- debug:
-    var: empty_dirs
+  become: true
+
+- meta: end_play
+
 - name: Delete empty directories
   file:
     path: "{{ empty_dir_path }}"
@@ -28,4 +79,4 @@
   loop: "{{ empty_dirs.files }}"
   loop_control:
     loop_var: empty_dir_path
-
+  become: true

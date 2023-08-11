@@ -1,11 +1,13 @@
 ---
-- name: Create a temporary directory
-  tempfile:
-    state: directory
-  register: temp_dir
+- name: Ensure the partition is mounted
+  include_role:
+    name: mounted_partition
+  vars:
+    partition_number: "{{ safe_purge_partition_number }}"
+    disk_by_id: "{{ safe_purge_disk_by_id }}"
 
 - name: Mount the partition at the temp dir and safely purge it
   include_tasks: mount_and_purge.yml
   vars:
-    mounted_safe_purge_partition_path: "{{ temp_dir.path }}"
+    mounted_safe_purge_partition_path: "{{ device_dict[safe_purge_disk_by_id].partitions[safe_purge_partition_number | string].mounts | first }}"
 ...
