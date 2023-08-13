@@ -1,0 +1,8 @@
+---
+- name: Ensure microcode updates are applied (intel and amd both)
+  pacman:
+    name:
+    - intel-ucode
+    - amd-ucode
+  become: true
+
