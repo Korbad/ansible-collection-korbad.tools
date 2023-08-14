@@ -1,0 +1,6 @@
+---
+- name: Launch file manager at {{ launch_file_manager_at_path }}
+  shell:
+    cmd: nohup nemo {{ launch_file_manager_at_path }} >/dev/null 2>&1 &
+  environment:
+    DISPLAY: "{{ ansible_env.DISPLAY | default(':0', true) }}"
