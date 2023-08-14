@@ -1,8 +1,3 @@
-- name: Launch file manager at point position at {{ mounted_safe_purge_partition_path }}
-  shell:
-    cmd: nohup nemo {{ mounted_safe_purge_partition_path }} >/dev/null 2>&1 &
-  environment:
-    DISPLAY: "{{ ansible_env.DISPLAY | default(':0', true) }}"
 
 - name: Ensure specific root directories are absent in {{ mounted_safe_purge_partition_path }}
   file:
@@ -54,29 +49,21 @@
   shell:
     cmd: find {{ mounted_safe_purge_partition_path }} -type d -empty -exec rmdir {} \;
   become: true
+  ignore_errors: true
 
-- meta: end_play
-- name: Find empty directories
-  find:
-    paths: "{{ (mounted_safe_purge_partition_path) | path_join }}"
-    file_type: directory
-    patterns: '.*'
-    recurse: yes
-    use_regex: yes
-    age: '1d'
-    age_stamp: mtime
-    contains: '^$'
-  register: empty_dirs
+- name: Delete empty directories (executed multiple times) from {{ mounted_safe_purge_partition_path }}
+  shell:
+    cmd: find {{ mounted_safe_purge_partition_path }} -type d -empty -exec rmdir {} \;
   become: true
+  ignore_errors: true
 
-- meta: end_play
-
-- name: Delete empty directories
-  file:
-    path: "{{ empty_dir_path }}"
-    state:
-  check_mode: true
-  loop: "{{ empty_dirs.files }}"
-  loop_control:
-    loop_var: empty_dir_path
+- name: Delete empty directories (executed multiple times) from {{ mounted_safe_purge_partition_path }}
+  shell:
+    cmd: find {{ mounted_safe_purge_partition_path }} -type d -empty -exec rmdir {} \;
   become: true
+  ignore_errors: true
+- name: Delete empty directories (executed multiple times) from {{ mounted_safe_purge_partition_path }}
+  shell:
+    cmd: find {{ mounted_safe_purge_partition_path }} -type d -empty -exec rmdir {} \;
+  become: true
+  ignore_errors: true
