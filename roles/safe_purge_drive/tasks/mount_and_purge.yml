@@ -35,6 +35,15 @@
     label: "{{ item.dir }} - {{ item.reason }}"
   become: true
 
+- name: Ensure specific Windows root directories are absent in {{ mounted_safe_purge_partition_path }}
+  file:
+    path: "{{ mounted_safe_purge_partition_path }}/{{ item.dir }}"
+    state: absent
+  loop:
+    - { dir: 'Windows', reason: 'Main Windows OS dir' }
+  loop_control:
+    label: "{{ item.dir }} - {{ item.reason }}"
+  become: true
 
 - name: Delete symlinks from {{ mounted_safe_purge_partition_path }}
   shell:
@@ -50,6 +59,10 @@
     cmd: find {{ mounted_safe_purge_partition_path }} -type d -empty -exec rmdir {} \;
   become: true
   ignore_errors: true
+  register: delete_empty_dirs
+
+- debug:
+    var: delete_empty_dirs
 
 - name: Delete empty directories (executed multiple times) from {{ mounted_safe_purge_partition_path }}
   shell:
