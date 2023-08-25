@@ -8,7 +8,7 @@
   register: temp_mounted_partition_path
   when: device_dict[disk_by_id].partitions[partition_number | string].mounts | count | int == 0
 
-- name: Mount the partition
+- name: Mount disk {{ disk_device_path_by_id }} partition {{ partition_number }}
   ansible.builtin.mount:
     path: "{{ temp_mounted_partition_path.path }}"
     src: "{{ disk_device_path_by_id }}-part{{ partition_number }}"
