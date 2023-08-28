@@ -16,6 +16,10 @@
   command: partprobe {{ arch_disk_device_path_by_id }}
   become: true
 
+- name: Trigger udev rules
+  command: udevadm trigger
+  become: true
+
 - name: Format root partition
   community.general.filesystem:
     dev: "{{ arch_disk_device_path_by_id }}-part{{ root_partition_number }}"
