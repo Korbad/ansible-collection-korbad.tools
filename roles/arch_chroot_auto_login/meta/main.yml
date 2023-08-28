@@ -1,0 +1,3 @@
+---
+dependencies:
+  - arch_chroot_root_mount

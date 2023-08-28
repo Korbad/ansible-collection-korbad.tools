@@ -1,0 +1,12 @@
+---
+- name: Create directory for override.conf for tty1
+  file:
+    path: "{{ arch_chroot_mount_path }}/etc/systemd/system/getty@tty1.service.d/"
+    state: directory
+  become: true
+
+- name: Create override.conf with autologin configuration using a template
+  template:
+    src: override.conf.j2
+    dest: "{{ arch_chroot_mount_path }}/etc/systemd/system/getty@tty1.service.d/override.conf"
+  become: true
