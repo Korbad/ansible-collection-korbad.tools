@@ -1,5 +1,4 @@
 [Service]
 ExecStart=
-ExecStart=-/usr/bin/agetty --autologin korbad --noclear %I $TERM
+ExecStart=-/usr/bin/agetty --autologin {{ autologin_username }} --noclear %I $TERM
 Type=simple
-Environment=XDG_SESSION_TYPE=x11
