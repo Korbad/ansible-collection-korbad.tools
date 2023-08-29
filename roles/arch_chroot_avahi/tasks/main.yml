@@ -1,0 +1,14 @@
+- name: Ensure that the avahi package is installed in chroot
+  command:
+    cmd: arch-chroot {{ arch_chroot_mount_path }} pacman -S --noconfirm avahi
+  become: true
+
+- name: Ensure systemd-resolved is disabled in chroot
+  command:
+    cmd: arch-chroot {{ arch_chroot_mount_path }} systemctl disable systemd-resolved.service
+  become: true
+
+- name: Ensure that the avahi-daemon is started and enabled in chroot
+  command:
+    cmd: arch-chroot {{ arch_chroot_mount_path }} systemctl enable avahi-daemon
+  become: true
