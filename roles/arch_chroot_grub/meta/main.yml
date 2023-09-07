@@ -1,4 +1,0 @@
----
-dependencies:
-  - arch_chroot_root_mount
-  - arch_chroot_initramfs

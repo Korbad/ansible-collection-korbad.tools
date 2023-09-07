@@ -1,6 +1,0 @@
-- name: Ensure {{ arch_chroot_mount_path }} is empty except /boot
-  shell:
-    cmd: "find {{ arch_chroot_mount_path }} -mindepth 1 -maxdepth 1 ! -name 'boot' -exec rm -rf {} +"
-  become: true
-  vars:
-    ansible_ssh_pipelining: true

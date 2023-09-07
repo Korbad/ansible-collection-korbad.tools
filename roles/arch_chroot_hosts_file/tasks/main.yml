@@ -1,6 +1,0 @@
----
-- name: Create /etc/hosts file in chroot
-  template:
-    src: hosts.j2
-    dest: "{{ arch_chroot_mount_path }}/etc/hosts"
-  become: true

@@ -1,6 +1,0 @@
-- name: Set timezone
-  ansible.builtin.file:
-    src: "/usr/share/zoneinfo/America/Chicago"
-    dest: "{{ arch_chroot_mount_path }}/etc/localtime"
-    state: link
-  become: true

@@ -1,4 +1,0 @@
-# https://geo.mirror.pkgbuild.com/iso/latest/arch/pkglist.x86_64.txt
-- name: Ensure that the package list from the iso is installed
-  command:
-    cmd: pacstrap -K

@@ -1,8 +1,0 @@
-- name: Set hostname
-  ansible.builtin.copy:
-    dest: "{{ arch_chroot_mount_path }}/etc/hostname"
-    content: "{{ arch_chroot_hostname }}"
-    owner: root
-    group: root
-    mode: '0644'
-  become: true

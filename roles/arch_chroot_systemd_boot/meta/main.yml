@@ -1,6 +1,0 @@
----
-dependencies:
-  - arch_chroot_esp_mount
-  - arch_chroot_root_mount
-  - arch_chroot_microcode_updates
-  - arch_chroot_kernels
