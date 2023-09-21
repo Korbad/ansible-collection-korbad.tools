@@ -3,7 +3,8 @@
   loop:
     - boot.yml
     - root.yml
-    - swap.yml
+#    - swap.yml
+    - korbad.yml
     - data.yml
   loop_control:
     loop_var: tasks_to_update_partition

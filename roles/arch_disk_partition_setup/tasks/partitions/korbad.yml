@@ -1,17 +1,17 @@
 ---
-- name: Create data partition
+- name: Create korbad partition
   community.general.parted:
     device: "{{ arch_disk_device_path_by_id }}"
-    number: "{{ data_partition_number }}"
+    number: "{{ korbad_partition_number }}"
     state: present
-    part_start: 130GiB
-    part_end: "100%"
-    fs_type: ext4
     resize: true
+    part_start: 100GiB
+    part_end: 130GiB
+    fs_type: ext4
+    name: korbad
     label: gpt
-    name: data
   become: true
-  register: data_part
+  register: korbad_part
 
 - name: Inform the OS of partition table changes
   command: partprobe {{ arch_disk_device_path_by_id }}
@@ -21,8 +21,9 @@
   command: udevadm trigger
   become: true
 
-- name: Format data partition
+- name: Format korbad partition
   community.general.filesystem:
-    dev: "{{ arch_disk_device_path_by_id }}-part{{ data_partition_number }}"
+    force: true
+    dev: "{{ arch_disk_device_path_by_id }}-part{{ korbad_partition_number }}"
     fstype: ext4
   become: true

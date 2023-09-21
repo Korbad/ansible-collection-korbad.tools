@@ -5,9 +5,10 @@
     number: "{{ root_partition_number }}"
     state: present
     part_start: 1GiB
-    part_end: 30GiB
+    part_end: 100GiB
     fs_type: ext4
     name: root
+    resize: true
     label: gpt
   become: true
   register: root_part

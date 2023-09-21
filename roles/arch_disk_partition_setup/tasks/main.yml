@@ -5,5 +5,5 @@
     arch_disk_device_path_by_id: "/dev/disk/by-id/{{ arch_disk_by_id }}"
     boot_partition_number: 1
     root_partition_number: 2
-    swap_partition_number: 3
+    korbad_partition_number: 3
     data_partition_number: 4
