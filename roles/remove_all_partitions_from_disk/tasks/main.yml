@@ -1,0 +1,30 @@
+---
+- name: Ensure disk is entirely unmounted
+  include_role:
+    name: unmount_disk_partitions
+  vars:
+    disk_id_to_unmount: "{{ disk_id_to_remove_partitions_from }}"
+
+- name: Read device information (always use unit when probing)
+  community.general.parted:
+    device: "{{ arch_disk_device_path }}"
+    unit: MiB
+  register: sdb_info
+  become: true
+  vars:
+    arch_disk_device_path: "/dev/disk/by-id/{{ disk_id_to_remove_partitions_from }}"
+
+- name: Remove all partitions from disk
+  community.general.parted:
+    device: "{{ arch_disk_device_path }}"
+    number: '{{ item.num }}'
+    state: absent
+  loop: '{{ sdb_info.partitions }}'
+  become: true
+  vars:
+    arch_disk_device_path: "/dev/disk/by-id/{{ disk_id_to_remove_partitions_from }}"
+
+- name: Flush filesystem buffers
+  ansible.builtin.command:
+    cmd: sync
+  become: true
