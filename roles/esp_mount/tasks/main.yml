@@ -3,9 +3,9 @@
   include_role:
     name: device_dict
 
-- name: Ensure a fact exists for the boot and esp mount
+- name: Ensure a fact exists for the esp mount
   set_fact:
-    esp_mount_path: "/boot"
+    esp_mount_path: "/efi"
 
 - name: Mount the partition if it is not mounted with the correct source
   ansible.builtin.mount:
@@ -15,7 +15,7 @@
     state: ephemeral
   become: true
   when: esp_mount_path not in esp_mounts
-  register: mount_chroot_efi
+  register: mount_efi_partition
   vars:
     esp_mounts: "{{ device_dict[disk_by_id].partitions[boot_partition_number | string].mounts }}"
     disk_boot_partition_device_path: "{{ device_dict[disk_by_id].partitions[boot_partition_number | string].path }}"
@@ -23,5 +23,5 @@
 - name: Generate device_dict fact
   include_role:
     name: device_dict
-  when: mount_chroot_efi is not skipped
+  when: mount_efi_partition is not skipped
 
