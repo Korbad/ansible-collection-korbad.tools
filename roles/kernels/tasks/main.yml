@@ -1,8 +1,0 @@
----
-- name: Ensure linux kernels are installed
-  pacman:
-    name:
-    - linux
-    - linux-lts
-    - linux-zen
-  become: true
