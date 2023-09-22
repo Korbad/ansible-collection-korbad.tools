@@ -1,0 +1,8 @@
+dependencies:
+  - role: korbad.tools.device_dict
+  - role: korbad.tools.unmount_disk_partitions
+    disk_id_to_unmount: "{{ disk_by_id }}"
+  - role: korbad.tools.remove_all_partitions_from_disk
+    disk_id_to_remove_partitions_from: "{{ disk_by_id }}"
+  - role: korbad.tools.arch_disk_partition_setup
+    arch_disk_by_id: "{{ disk_by_id }}"
