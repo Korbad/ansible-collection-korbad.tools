@@ -1,0 +1,29 @@
+- name: Check for open files using fuser
+  ansible.builtin.command:
+    cmd: fuser --mount --kill {{ disk_mount_point }}
+  become: true
+  failed_when: false
+  register: fuser_open_files
+
+- name: Ensure filesystem write buffering is complete
+  command:
+    cmd: sync
+  become: true
+
+- name: "Check if {{ disk_mount_point }} is a mount point"
+  command:
+    cmd: mountpoint -q {{ disk_mount_point }}
+  register: is_mount_point
+  ignore_errors: true
+  changed_when: false
+
+- name: "Unmount disk mount point {{ disk_mount_point }}"
+  command:
+    cmd: umount --recursive {{ disk_mount_point }}
+  become: true
+  when: is_mount_point.rc == 0
+
+- name: Ensure filesystem write buffering is complete
+  command:
+    cmd: sync
+  become: true
