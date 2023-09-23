@@ -1,0 +1,12 @@
+---
+- include_role:
+    name: device_dict
+
+- name: Assert failure if root_partition_number hosts the root mount point
+  assert:
+    that:
+      - "'/' not in mounts_list"
+    fail_msg: "root_partition_number matches the active root partition. Aborting."
+  vars:
+    mounts_list: "{{ device_dict[disk_by_id]['partitions'][root_partition_number|string]['mounts'] }}"
+
