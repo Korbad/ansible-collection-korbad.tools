@@ -1,0 +1,49 @@
+---
+- name: Get i3 workspaces
+  command:
+    cmd: i3-msg -t get_workspaces
+  environment:
+    DISPLAY: "{{ user_display }}"
+  changed_when: false
+  register: i3_workspaces
+
+- name: Get i3 outputs
+  command:
+    cmd: i3-msg -t get_outputs
+  environment:
+    DISPLAY: "{{ user_display }}"
+  changed_when: false
+  register: i3_outputs
+
+- name: Get i3 tree
+  command:
+    cmd: i3-msg -t get_tree
+  environment:
+    DISPLAY: "{{ user_display }}"
+  changed_when: false
+  register: i3_tree
+
+- name: Get i3 marks
+  command:
+    cmd: i3-msg -t get_marks
+  environment:
+    DISPLAY: "{{ user_display }}"
+  changed_when: false
+  register: i3_marks
+
+- name: Get i3 bar_config
+  command:
+    cmd: i3-msg -t get_bar_config
+  environment:
+    DISPLAY: "{{ user_display }}"
+  changed_when: false
+  register: i3_bar_config
+
+- name: Create a fact which stores the current i3 status for the active display
+  set_fact:
+    i3_status:
+      workspaces: "{{ i3_workspaces.stdout | from_json }}"
+      outputs: "{{ i3_outputs.stdout | from_json }}"
+      tree: "{{ i3_tree.stdout | from_json }}"
+      marks: "{{ i3_marks.stdout | from_json }}"
+      bar: "{{ i3_bar_config.stdout | from_json }}"
