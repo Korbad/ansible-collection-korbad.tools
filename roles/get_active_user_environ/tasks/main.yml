@@ -1,0 +1,20 @@
+---
+- name: Find user UID
+  command: id -u {{ ansible_env.USER }}
+  register: user_uid
+
+- name: "Get the PID of i3 for the user {{ ansible_env.USER }}"
+  shell: pgrep -u {{ ansible_env.USER }} -a i3 | head -n 1 | awk '{print $1}'
+  register: i3_pid
+  changed_when: false
+
+- name: Get environment variables for the i3 process
+  command: cat /proc/{{ i3_pid.stdout }}/environ
+  register: i3_environ
+  changed_when: false
+
+- name: Convert environ string to a dictionary using Jinja2 template
+  set_fact:
+    active_user_environ_dict: "{{ lookup('template', 'parse_environ.j2') | from_json }}"
+  vars:
+    environ_string: "{{ i3_environ.stdout }}"
