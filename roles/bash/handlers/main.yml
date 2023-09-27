@@ -1,0 +1,4 @@
+---
+- name: refresh user bash sessions using SIGHUP
+  ansible.builtin.command:
+    cmd: "pkill -HUP -u {{ ansible_env.USER }} bash"
