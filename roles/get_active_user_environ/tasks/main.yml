@@ -2,6 +2,7 @@
 - name: Find user UID
   command: id -u {{ ansible_env.USER }}
   register: user_uid
+  changed_when: false
 
 - name: "Get the PID of i3 for the user {{ ansible_env.USER }}"
   shell: pgrep -u {{ ansible_env.USER }} -a i3 | head -n 1 | awk '{print $1}'
