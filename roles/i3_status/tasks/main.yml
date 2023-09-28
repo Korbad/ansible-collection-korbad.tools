@@ -1,9 +1,12 @@
 ---
+- include_role:
+    name: get_active_user_environ
+
 - name: Get i3 workspaces
   command:
     cmd: i3-msg -t get_workspaces
   environment:
-    DISPLAY: "{{ user_display }}"
+    DISPLAY: "{{ active_user_environ_dict.DISPLAY }}"
   changed_when: false
   register: i3_workspaces
 
@@ -11,7 +14,7 @@
   command:
     cmd: i3-msg -t get_outputs
   environment:
-    DISPLAY: "{{ user_display }}"
+    DISPLAY: "{{ active_user_environ_dict.DISPLAY }}"
   changed_when: false
   register: i3_outputs
 
@@ -19,7 +22,7 @@
   command:
     cmd: i3-msg -t get_tree
   environment:
-    DISPLAY: "{{ user_display }}"
+    DISPLAY: "{{ active_user_environ_dict.DISPLAY }}"
   changed_when: false
   register: i3_tree
 
@@ -27,7 +30,7 @@
   command:
     cmd: i3-msg -t get_marks
   environment:
-    DISPLAY: "{{ user_display }}"
+    DISPLAY: "{{ active_user_environ_dict.DISPLAY }}"
   changed_when: false
   register: i3_marks
 
@@ -35,7 +38,7 @@
   command:
     cmd: i3-msg -t get_bar_config
   environment:
-    DISPLAY: "{{ user_display }}"
+    DISPLAY: "{{ active_user_environ_dict.DISPLAY }}"
   changed_when: false
   register: i3_bar_config
 
