@@ -1,0 +1,9 @@
+---
+- name: Check if {{ purge_empty_directories_search_path }} exists
+  ansible.builtin.stat:
+    path: "{{ purge_empty_directories_search_path }}"
+  register: purge_empty_directories_search_stat
+
+- name: Delete all empty folders in {{ purge_empty_directories_search_path }} if it exists
+  shell: "find {{ purge_empty_directories_search_path }} -type d -empty -delete"
+  when: purge_empty_directories_search_stat.stat.exists and purge_empty_directories_search_stat.stat.isdir
