@@ -1,0 +1,10 @@
+- name: Check for processes using the directory and kill them
+  ansible.builtin.command:
+    cmd: fuser -k {{ fuser_kill_path }}
+  become: true
+  failed_when: false
+  register: fuser_output
+
+- name: Display fuser output
+  debug:
+    msg: "{{ fuser_output.stdout_lines }}"
