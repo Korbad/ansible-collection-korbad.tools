@@ -1,0 +1,7 @@
+- name: Gather mounts facts
+  setup:
+    gather_subset: mounts
+
+- name: Display all mount points
+  debug:
+    msg: "{{ ansible_facts['mounts'] }}"
