@@ -1,0 +1,10 @@
+---
+- name: Run Glances to get JSON output
+  command:
+    cmd: glances --stdout-json
+  register: glances_output
+
+- name: Convert JSON output to structured data
+  set_fact:
+    glances_data: "{{ glances_output.stdout | from_json }}"
+    cacheable: true
