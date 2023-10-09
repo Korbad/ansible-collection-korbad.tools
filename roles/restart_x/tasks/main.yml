@@ -1,0 +1,3 @@
+---
+- name: Kill the X server to restart it
+  command: pkill X
