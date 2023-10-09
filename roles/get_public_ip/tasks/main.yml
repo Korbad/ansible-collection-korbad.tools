@@ -1,0 +1,14 @@
+---
+- name: Retrieve external IP
+  uri:
+    url: "http://ipinfo.io/ip"
+    return_content: yes
+  register: external_ip_result
+
+- name: Set the external IP as a variable
+  set_fact:
+    external_ip: "{{ external_ip_result.content | trim }}"
+
+- name: Display external IP
+  debug:
+    var: external_ip
