@@ -1,0 +1,6 @@
+---
+- include_role:
+    name: korbad.tools.mounted_partition
+  vars:
+    partition_number: "{{ item.key }}"
+  loop: "{{ device_dict[disk_by_id].partitions | dict2items }}"
