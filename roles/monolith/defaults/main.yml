@@ -1,0 +1,1 @@
+monolith_storage_path: "{{ ansible_env.HOME }}/managed_monolith_artifacts"

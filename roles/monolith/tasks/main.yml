@@ -1,0 +1,12 @@
+---
+- name: Ensure monolith storage directory exists
+  file:
+    state: directory
+    path: "{{ monolith_storage_path }}"
+
+- name: monolith
+  command:
+    cmd: monolith {{ url }} -o {{ monolith_storage_path }}/{{ valid_filename }}.html
+  vars:
+    url_parts: "{{ url | urlsplit }}"
+    valid_filename: "{{ url_parts['scheme'] }}_{{ url_parts['netloc'] }}_{{ url_parts['path'] | basename }}_{{ ansible_date_time.epoch }}"
