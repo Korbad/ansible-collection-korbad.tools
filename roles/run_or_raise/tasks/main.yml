@@ -1,0 +1,4 @@
+---
+- name: Execute run-or-raise
+  command:
+    cmd: run-or-raise {{ run_or_raise_condition | quote }} {{ run_or_raise_target_program }} {{ run_or_raise_target_program_args }}

@@ -1,0 +1,3 @@
+run_or_raise_condition: name = "Discord"
+run_or_raise_target_program: discord
+run_or_raise_target_program_args:
