@@ -1,1 +1,3 @@
-monolith_storage_path: "{{ ansible_env.HOME }}/managed_monolith_artifacts"
+monolith_artifacts_dir: "{{ ansible_env.HOME }}/managed_monolith_artifacts"
+monolith_url_parts: "{{ monolith_url_to_save | urlsplit }}"
+monolith_filename_base: "{{ monolith_url_parts['scheme'] }}_{{ monolith_url_parts['netloc'] }}_{{ monolith_url_parts['path'] | basename }}_{{ ansible_date_time.epoch }}"

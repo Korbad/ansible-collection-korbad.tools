@@ -2,11 +2,20 @@
 - name: Ensure monolith storage directory exists
   file:
     state: directory
-    path: "{{ monolith_storage_path }}"
+    path: "{{ monolith_artifacts_dir }}"
 
 - name: monolith
   command:
-    cmd: monolith {{ url }} -o {{ monolith_storage_path }}/{{ valid_filename }}.html
-  vars:
-    url_parts: "{{ url | urlsplit }}"
-    valid_filename: "{{ url_parts['scheme'] }}_{{ url_parts['netloc'] }}_{{ url_parts['path'] | basename }}_{{ ansible_date_time.epoch }}"
+    cmd: monolith {{ monolith_url_to_save }} -o {{ monolith_artifacts_dir }}/{{ monolith_filename_base }}.html
+
+
+# Monolith doesn't feature a JavaScript engine, hence websites that retrieve and display data after initial load may require usage of additional tools.
+#For example, Chromium (Chrome) can be used to act as a pre-processor for such pages:
+# chromium --headless --incognito --dump-dom https://github.com | monolith - -I -b https://github.com -o github.html
+
+
+#Whitelisting and blacklisting domains
+#Options -d and -B provide control over what domains can be used to retrieve assets from. E.g.:
+#
+#monolith -I -d example.com -d www.example.com https://example.com -o example-only.html
+#monolith -I -B -d .googleusercontent.com -d googleanalytics.com -d .google.com https://example.com -o example-no-ads.html
