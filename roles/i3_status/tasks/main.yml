@@ -1,7 +1,4 @@
 ---
-- include_role:
-    name: get_active_user_environ
-
 - name: Get i3 workspaces
   command:
     cmd: i3-msg -t get_workspaces
