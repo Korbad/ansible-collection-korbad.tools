@@ -1,0 +1,4 @@
+---
+allow_duplicates: true
+dependencies:
+  - korbad.workstation.i3_configuration

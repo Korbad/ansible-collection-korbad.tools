@@ -1,0 +1,8 @@
+---
+- name: Execute i3-msg exec
+  command:
+    cmd: i3-msg exec {{ i3_exec_command }}
+  environment:
+    DISPLAY: "{{ active_user_environ_dict.DISPLAY }}"
+    I3SOCK: "{{ i3_socket_path }}"
+  changed_when: false
